@@ -261,7 +261,7 @@ def main(args):
     space["frames"] = frames
     with open(osp.join(root_dir, "space.json"), "w") as f:
         json.dump(space, f)
-    print(f"space.json saved to {recon_dir}")
+    print(f"space.json saved to {root_dir}")
 
 
 if __name__ == '__main__':
