@@ -189,6 +189,7 @@ def main(args):
     root_dir = args.root_dir
     recon_dir = args.recon_dir
     space = json.load(open(osp.join(root_dir, "space.json"), "r"))
+    origin_frames = space["frames"]
     frames = []
 
     # Read poses from poses.npy
@@ -201,6 +202,14 @@ def main(args):
     Ts = np.load(osp.join(recon_dir, "tstamps.npy")).astype(np.int32)
     imgpaths = sorted(listdir(osp.join(root_dir, "images")))
     imgpaths = [f"images/{imgpaths[idx]}" for idx in Ts]
+    have_depth = "depth_image_path" in origin_frames[0]
+    if have_depth:
+        depth_pths = sorted([frame["depth_image_path"] for frame in origin_frames])
+        depth_pths = [depth_pths[idx] for idx in Ts]
+    have_mask = "mask_file_path" in origin_frames[0]
+    if have_mask:
+        mask_pths = sorted([frame["mask_file_path"] for frame in origin_frames])
+        mask_pths = [mask_pths[idx] for idx in Ts]
 
     assert len(imgpaths) == len(poses), "number of images and poses do not match"
 
@@ -243,6 +252,10 @@ def main(args):
         imgpath = imgpaths[idx]
         pose = Ps[idx]
         frame = {"file_path": imgpath, "transform_matrix": pose.tolist()}
+        if have_mask:
+            frame.update({"mask_file_path": mask_pths[idx]})
+        if have_depth:
+            frame.update({"depth_image_path": depth_pths[idx]})
         frames.append(frame)
 
     space["frames"] = frames
